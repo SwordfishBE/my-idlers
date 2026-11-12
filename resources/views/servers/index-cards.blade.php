@@ -249,15 +249,14 @@
                 'Accept': 'application/json',
             };
 
-            let app = new Vue({
-                el: "#app",
-                data: {
+            mountMyIdlers({
+                data() { return {
                     status: false,
                     modal_hostname: '',
                     modal_id: '',
                     delete_form_action: '',
                     showModal: false
-                },
+                }; },
                 methods: {
                     checkIfUp(event) {
                         var el = event.target.closest('button') || event.target;
@@ -284,7 +283,7 @@
                         this.delete_form_action = 'servers/' + this.modal_id;
                     }
                 }
-            });
+            }, '#app');
         });
     </script>
     @endsection

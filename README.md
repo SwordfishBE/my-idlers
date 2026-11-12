@@ -9,7 +9,7 @@ a [YABS](https://github.com/masonr/yet-another-bench-script) output you can get 
 GeekBench 5 & 6 scores to do easier comparing and sorting. Of course storing other services e.g. web hosting is possible
 and supported too with My idlers.
 
-[![Generic badge](https://img.shields.io/badge/version-4.1.0-blue.svg)](https://shields.io/) [![Generic badge](https://img.shields.io/badge/Laravel-11.48-red.svg)](https://shields.io/) [![Generic badge](https://img.shields.io/badge/PHP-8.4-purple.svg)](https://shields.io/) [![Generic badge](https://img.shields.io/badge/Bootstrap-5.3-pink.svg)](https://shields.io/)
+[![Generic badge](https://img.shields.io/badge/version-4.2.0-blue.svg)](https://shields.io/) [![Generic badge](https://img.shields.io/badge/Laravel-13-red.svg)](https://shields.io/) [![Generic badge](https://img.shields.io/badge/PHP-8.3%2B-purple.svg)](https://shields.io/) [![Generic badge](https://img.shields.io/badge/Bootstrap-5.3-pink.svg)](https://shields.io/)
 
 <img src="https://raw.githubusercontent.com/cp6/my-idlers/main/public/My%20Idlers%20logo.jpg" width="128" height="128" />
 
@@ -22,6 +22,13 @@ and supported too with My idlers.
 Proudly sponsored by [PikaPods](https://www.pikapods.com/) - Deploy your own My Idlers instance with one click, no server setup required. PikaPods handles all the infrastructure so you can focus on managing your services.
 
 [![PikaPods](https://www.pikapods.com/static/run-button.svg)](https://www.pikapods.com/pods?run=my-idlers)
+
+## 4.2.0 changes
+
+* Added optional expiry email reminders for active servers, domains, shared and reseller hosting, seedboxes and miscellaneous services, 14, 3 and 1 day before their due date.
+* Added a recipient, time-zone and test-email control in Settings. Reminders are disabled by default.
+* Added a backup-first upgrade command and reviewed migration checks. See [Updating](#updating).
+* Updated application and frontend dependencies.
 
 ## 4.1.0 changes (February 2026):
 
@@ -117,20 +124,19 @@ The seeder is split into two parts:
 **Demo data (optional):** Admin user and sample services (servers, domains, shared hosting, etc.)
 
 ```shell
-# Fresh install (core data only - recommended for production)
-php artisan migrate:fresh --seed
+# New, empty database only (core data only)
+php artisan migrate --seed
 
-# Fresh install with demo data
-# First add SEED_DEMO_DATA=true to your .env file, then:
-php artisan migrate:fresh --seed
+# New, empty database only: to include demo data, set SEED_DEMO_DATA=true first.
+php artisan migrate --seed
 ```
 
 ### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SEED_DEMO_DATA` | `false` | Set to `true` to seed demo user and sample data during `migrate:fresh --seed` |
-| `MAX_USERS` | `0` | Maximum number of users allowed to register. `0` = unlimited |
+| `SEED_DEMO_DATA` | `false` | Set to `true` to seed demo user and sample data during initial database seeding |
+| `MAX_USERS` | `1` | Maximum number of users allowed to register. `0` = unlimited |
 
 ### Demo Login Credentials
 
@@ -140,18 +146,14 @@ When `SEED_DEMO_DATA=true` is set, a demo user is created:
 |-------|----------|
 | admin@admin.com | password |
 
-#### Please run the following if updating from an existing install:
+#### Updating an existing installation
 
-```shell
-composer update
-php artisan migrate
-php artisan route:cache
-php artisan cache:clear
-```
+See [Updating](#updating). Never use `migrate:fresh`, `migrate:reset`, or `migrate:rollback` on an existing database.
 
 ## Requires
 
-* PHP 8.4
+* PHP 8.3 or newer
+* Node.js 22.22.2+, 24.15.0+, or 26+ to build and test frontend assets
 
 ## Features
 
@@ -177,27 +179,56 @@ php artisan cache:clear
 
 * Run `git clone https://github.com/cp6/my-idlers.git` into your directory of choice
 * Run `composer install`
-* Run `npm install`
+* Run `npm ci`
 * Run `cp .env.example .env`
 * Edit MySQL details and other settings in .env
 * Run `php artisan key:generate`
 * Run `php artisan make:database my_idlers` to create database
 * Run `npm run prod` to build assets
-* Run `php artisan migrate:fresh --seed` to create tables and seed data
+* On a new, empty database only, run `php artisan migrate --seed`
 * Run `php artisan serve`
 
 ## Updating
 
-If you already have at least version 2.0 installed:
+The upgrade command is for existing local MySQL or MariaDB installations. It does not install operating-system packages, deploy source code, modify `.env`, restore databases, or turn the site back on. Test the entire upgrade and restore process on a separate copy first. MySQL DDL can commit partially, so a migration failure requires inspection and may require restoring a backup; no command can guarantee zero data loss.
 
-* Run `git pull`
-* Run `composer install`
-* Run `composer update`
-* Run `npm install`
-* Run `npm run prod`
-* Run `php artisan migrate`
-* Run `php artisan route:cache`
-* Run `php artisan cache:clear`
+Before deploying updated code, make and test an independent backup of the existing database, `.env`, and any uploaded files. Keep copies outside the web root, encrypted as appropriate, and retain the existing `APP_KEY`, database credentials, HTTPS URL, Nginx configuration and application server settings. Never run `migrate:fresh`, `migrate:reset`, `migrate:rollback`, or seeders on production as an upgrade step.
+
+1. Check PHP is 8.3 or newer, required extensions are installed, and a compatible `mariadb-dump` (for MariaDB) or `mysqldump` (for MySQL) is available. Run `composer check-platform-reqs --no-dev` after installing the release's locked dependencies.
+2. Put the existing application in maintenance mode using `php artisan down`. Stop queue workers, scheduled jobs and all other writers, including external services, and prevent concurrent schema changes. Check maintenance mode is active before proceeding.
+3. Deploy the reviewed release and run `composer install --no-dev --no-interaction`. Existing built assets are included; if rebuilding, use `npm ci` and `npm run production` on a machine meeting the documented Node.js requirement. Clear stale Laravel configuration using `php artisan config:clear`; do not replace `.env` or regenerate `APP_KEY`. Run `php artisan myidlers:check-config` to check prerequisites without printing or modifying secrets. It does not verify cron or actual email delivery.
+4. Create a dedicated backup directory outside both the application directory and web root, owned and writable only by the account running the command (for example `mkdir -m 700 /path/to/private-backups`). Then run:
+
+   ```sh
+   php artisan myidlers:upgrade --backup-dir=/path/to/private-backups
+   ```
+
+   Confirm that all other database writers are stopped. The command checks for an existing migration history, local connection and InnoDB tables, takes a private SQL dump, and checks pending migrations against the reviewed migration list. It pauses before migrating: restore **that dump** to a separate empty database, verify its contents and migration history, and confirm only if the restore succeeds. A dump completion marker is not proof that every object or privilege was captured. The database account must have the necessary dump privileges, including for views, triggers, routines and events. Keep the application and all writers stopped during the backup, restore check and migration.
+5. If migration or verification fails, leave maintenance mode enabled; investigate before recovery. MySQL schema changes may not roll back automatically. Restore only into an appropriately isolated database after checking the intended target, and verify data before reconnecting the application. After success, verify the site, database records and HTTPS; only then run `php artisan up` and resume the stopped writers.
+
+The command deliberately rejects remote databases, non-InnoDB tables, unknown or modified pending migrations, split read/write connections, a missing migration history, cached configuration, and unsafe backup directories. A MySQL `DB_HOST=localhost` connection must have an explicit `DB_SOCKET` so the dump connects to the same server. A backup and restore strategy for other configurations must be validated separately; do not bypass these checks. Future migrations must be reviewed for data preservation and added to `config/reviewed-upgrade-migrations.php` using the SHA-256 of the migration file with CRLF line endings normalized to LF. Review includes testing with representative existing data, not merely updating a hash.
+
+### Debian prerequisites
+
+Check the installed Debian release, PHP version and extensions before changing packages: `cat /etc/os-release`, `php -v`, `php -m`, and `command -v mariadb-dump` or `command -v mysqldump`. On Debian 13, potential missing packages include `php8.4-cli`, `php8.4-mysql`, `php8.4-mbstring`, `php8.4-xml`, `php8.4-curl`, `php8.4-zip`, `composer`, and, for a MariaDB server, `mariadb-client`. Install only confirmed missing packages and use the same PHP version for CLI and the application server. Debian 12's standard PHP 8.2 packages do not satisfy this release; do not add an unverified repository or upgrade the operating system without a separate plan. For a MySQL server, use a compatible MySQL client instead of assuming the MariaDB client is interchangeable. Do not install a database server merely to obtain a dump client.
+
+## Expiry email reminders
+
+The app can send one email per active service 14, 3 and 1 calendar day before the saved next due date. This is the date recorded in My Idlers, not an independently verified registrar expiry date. Supported types are servers, domains, shared hosting, reseller hosting, seedboxes and miscellaneous services. DNS records do not have a due date. Reminders are disabled until enabled in Settings, where one recipient and an IANA time zone can be saved. The default time zone is `Europe/Brussels`; the app starts sending at 09:00 in the selected time zone and retries failed deliveries throughout the same day.
+
+A server administrator must configure an SMTP provider in the existing private `.env` file, without replacing the file or changing `APP_KEY`. Supply the provider's actual values, including `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, and `MAIL_FROM_NAME`. `MAIL_SCHEME=smtp` is used for STARTTLS (normally port 587); use `MAIL_SCHEME=smtps` for implicit TLS (normally port 465). Existing `MAIL_ENCRYPTION=tls` and `MAIL_ENCRYPTION=ssl` are honored when `MAIL_SCHEME` is absent; an explicit `MAIL_SCHEME` takes precedence. An existing `MAIL_URL` alone is not sufficient for reminder mail: configure the individual `MAIL_HOST`, port, credentials and sender values. The dedicated reminder mailer requires TLS and validates the server certificate. Never commit credentials or post them in chat. After changing `.env`, clear Laravel's config cache with `php artisan config:clear`, or rebuild it according to the existing deployment procedure.
+
+In Settings, save a valid recipient, then use **Send Test Email**. This sends a real test message to the saved address even while reminders are disabled; receiving it confirms the configuration works. The equivalent administrator command is `php artisan reminders:send --test`. The test does not send actual expiry reminders. Once the test arrives, enable reminders in Settings.
+
+Laravel's scheduler must run every minute under the same account and PHP version used by the application. For example, add the following using that account's `crontab -e`, substituting the real application and private writable log paths and PHP binary:
+
+```cron
+* * * * * cd /absolute/path/to/my-idlers && /usr/bin/php artisan schedule:run >> /absolute/path/to/private-logs/my-idlers-scheduler.log 2>&1
+```
+
+The scheduler runs the reminder job every 15 minutes. Do not replace an existing crontab or add a second scheduler entry. Verify the existing scheduler and service account before installation; this repository cannot install cron on your server. Protect and rotate the scheduler log according to your normal server practices.
+
+A delivery record prevents normal repeated runs from sending the same reminder twice to the same recipient for the same service, due date and interval. A failed send is retried on the next run, and interrupted claims are retried after one hour. If a process stops after the SMTP server accepts a message but before the app records success, a retry can occasionally duplicate that message; SMTP acceptance also does not guarantee inbox delivery. If the scheduler is offline for an entire reminder day, that day's reminder is not sent later. Monitor the scheduler and mail logs and use the test message to check delivery.
 
 ## Run using Docker
 
@@ -212,7 +243,7 @@ docker run \
   -e MAX_USERS=0 \
   -e SEED_DEMO_DATA=false \
   ghcr.io/cp6/my-idlers:latest
-docker exec ... php artisan migrate:fresh --seed --force  # Set up database one time
+docker exec ... php artisan migrate --seed --force  # New, empty database only
 ```
 
 ## Managed Hosting

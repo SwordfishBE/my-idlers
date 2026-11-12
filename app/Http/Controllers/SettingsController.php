@@ -3,15 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Models\Settings;
+use App\Services\ExpiryReminderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class SettingsController extends Controller
 {
     public function index()
     {
         return view('settings.index', ['setting' => Settings::where('id', 1)->first()]);
+    }
+
+    public function updateReminders(Request $request)
+    {
+        $data = $request->validate([
+            'expiry_reminders_enabled' => 'required|boolean',
+            'expiry_reminder_email' => 'nullable|required_if:expiry_reminders_enabled,1|email:rfc|max:254',
+            'expiry_reminder_timezone' => 'required|timezone|max:64',
+        ]);
+
+        Settings::where('id', 1)->firstOrFail()->update($data);
+        Cache::forget('settings');
+
+        return redirect()->route('settings.index')->with('success', 'Expiry reminder settings updated successfully.');
+    }
+
+    public function sendReminderTest(ExpiryReminderService $reminders)
+    {
+        try {
+            $reminders->sendTest();
+            return redirect()->route('settings.index')->with('success', 'The test message was accepted by the mail server. Check the recipient inbox.');
+        } catch (Throwable $exception) {
+            Log::error('Expiry reminder test failed.', ['exception' => get_class($exception)]);
+            return redirect()->route('settings.index')->with('error', 'Could not send the test message. Check the saved recipient and server mail configuration.');
+        }
     }
 
     public function update(Request $request)

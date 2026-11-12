@@ -10,7 +10,7 @@
 
 <script>
     window.addEventListener('load', function () {
-        $.fn.dataTable.ext.errMode = 'none';
+        DataTable.ext.errMode = 'none';
 
         const selector = @json($selector);
         const options = {
@@ -40,6 +40,8 @@
         options.order = @json($order);
         @endif
 
-        $(selector).DataTable(options);
+        if (document.querySelector(selector)) {
+            new DataTable(selector, options);
+        }
     });
 </script>

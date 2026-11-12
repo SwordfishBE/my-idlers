@@ -53,15 +53,14 @@
 
     <script type="application/javascript">
         window.addEventListener('load', function() {
-            let app = new Vue({
-                el: "#app",
-                data: {
+            mountMyIdlers({
+                data() { return {
                     "base_url": "{{ url('yabs-compare') }}/",
                     "full_url": "{{ route('yabs.compare', ['yabs1' => $all_yabs[0]->id, 'yabs2' => $all_yabs[1]->id]) }}",
                     "url_input": "",
                     "server1": "{{ $all_yabs[0]->id ?? '' }}",
                     "server2": "{{ $all_yabs[1]->id ?? '' }}",
-                },
+                }; },
                 methods: {
                     changeServer1: function changeServer1(event) {
                         this.server1 = event.target.value;
@@ -74,7 +73,7 @@
                         this.url_input = this.full_url;
                     }
                 }
-            });
+            }, '#app');
         });
     </script>
 </x-app-layout>

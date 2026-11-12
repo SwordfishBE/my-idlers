@@ -200,6 +200,46 @@
             <button type="submit" class="btn btn-primary mb-4">Update Settings</button>
         </form>
 
+        <form action="{{ route('settings.reminders.update') }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="card content-card mb-4">
+                <div class="card-header card-section-header">
+                    <h5 class="card-section-title mb-0">Expiry Email Reminders</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Send a reminder 14, 3 and 1 day before an active service's due date. Email delivery and the scheduler must be configured on the server.</p>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-3">
+                            <label for="expiry_reminders_enabled" class="form-label">Reminders</label>
+                            <select id="expiry_reminders_enabled" name="expiry_reminders_enabled" class="form-select">
+                                <option value="0" @selected((string) old('expiry_reminders_enabled', $setting->expiry_reminders_enabled) === '0')>Disabled</option>
+                                <option value="1" @selected((string) old('expiry_reminders_enabled', $setting->expiry_reminders_enabled) === '1')>Enabled</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <label for="expiry_reminder_email" class="form-label">Recipient email</label>
+                            <input id="expiry_reminder_email" name="expiry_reminder_email" type="email" maxlength="254" class="form-control @error('expiry_reminder_email') is-invalid @enderror" value="{{ old('expiry_reminder_email', $setting->expiry_reminder_email) }}">
+                            @error('expiry_reminder_email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="expiry_reminder_timezone" class="form-label">Time zone</label>
+                            <input id="expiry_reminder_timezone" name="expiry_reminder_timezone" type="text" maxlength="64" required class="form-control @error('expiry_reminder_timezone') is-invalid @enderror" value="{{ old('expiry_reminder_timezone', $setting->expiry_reminder_timezone) }}">
+                            @error('expiry_reminder_timezone') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <small class="text-muted">For example, Europe/Brussels. Reminders start at 09:00 local time.</small>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Save Reminder Settings</button>
+                </div>
+            </div>
+        </form>
+
+        <form action="{{ route('settings.reminders.test') }}" method="POST" class="mb-4">
+            @csrf
+            <button type="submit" class="btn btn-outline-primary">Send Test Email</button>
+            <small class="text-muted ms-2">Uses the saved recipient and server mail settings.</small>
+        </form>
+
         <!-- Data Export -->
         <div class="card content-card mb-4">
             <div class="card-header card-section-header">

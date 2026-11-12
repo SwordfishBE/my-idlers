@@ -15,6 +15,8 @@ return [
 
     'name' => env('APP_NAME', 'My idlers'),
 
+    'version' => '4.2.0',
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

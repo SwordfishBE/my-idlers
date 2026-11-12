@@ -125,30 +125,31 @@ class Server extends Model
     public static function osIntToIcon(int $os, string $os_name): string
     {
         $name = strtolower(str_replace(' ', '', $os_name));
+        $title = e($os_name);
         if ($name === "none") {//None
-            return "<i class='fas fa-expand' title='{$os_name}'></i>";
+            return "<i class='fas fa-expand' title='{$title}'></i>";
         } else if (str_contains($name, "centos")) {//CentOS
-            return "<i class='fa-brands fa-centos os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-brands fa-centos os-icon' title='{$title}'></i>";
         } elseif (str_contains($name, "debian")) {//Debian
-            return "<i class='fa-brands fa-debian os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-brands fa-debian os-icon' title='{$title}'></i>";
         } elseif (str_contains($name, "fedora")) {//Fedora
-            return "<i class='fa-brands fa-fedora os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-brands fa-fedora os-icon' title='{$title}'></i>";
         } elseif (str_contains($name, "freebsd")) {//FreeBSD
-            return "<i class='fa-brands fa-freebsd os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-brands fa-freebsd os-icon' title='{$title}'></i>";
         } elseif (str_contains($name, "openbsd")) {//OpenBSD
-            return "<i class='fa-brands fa-linux os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-brands fa-linux os-icon' title='{$title}'></i>";
         } elseif (str_contains($name, "ubuntu")) {//Ubuntu
-            return "<i class='fa-brands fa-ubuntu os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-brands fa-ubuntu os-icon' title='{$title}'></i>";
         } elseif (str_contains($name, "windows")) {//Windows
-            return "<i class='fa-brands fa-windows os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-brands fa-windows os-icon' title='{$title}'></i>";
         } elseif (str_contains($name, "opensuse")) {//OpenSUSE
-            return "<i class='fa-brands fa-opensuse os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-brands fa-opensuse os-icon' title='{$title}'></i>";
         } elseif (str_contains($name, "redhat")) {//Red Hat
-            return "<i class='fa-brands fa-redhat os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-brands fa-redhat os-icon' title='{$title}'></i>";
         } elseif (str_contains($name, "linux")) {//Linux
-            return "<i class='fa-brands fa-linux os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-brands fa-linux os-icon' title='{$title}'></i>";
         } else {//OTHER ISO CUSTOM etc
-            return "<i class='fa-solid fa-compact-disc os-icon' title='{$os_name}'></i>";
+            return "<i class='fa-solid fa-compact-disc os-icon' title='{$title}'></i>";
         }
     }
 

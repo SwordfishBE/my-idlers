@@ -53,6 +53,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('servers', ServerController::class);
 
+    Route::put('settings/reminders', [SettingsController::class, 'updateReminders'])->name('settings.reminders.update');
+    Route::post('settings/reminders/test', [SettingsController::class, 'sendReminderTest'])->middleware('throttle:3,1')->name('settings.reminders.test');
     Route::resource('settings', SettingsController::class);
 
     Route::resource('seedboxes', SeedBoxesController::class);

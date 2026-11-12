@@ -34,6 +34,22 @@ return [
     */
 
     'mailers' => [
+        // Reminders use authenticated TLS; never silently fall back to plaintext.
+        'expiry_reminders' => [
+            'transport' => 'smtp',
+            'host' => env('MAIL_HOST'),
+            'port' => env('MAIL_PORT', 587),
+            // Preserve legacy implicit-TLS settings when MAIL_SCHEME is absent.
+            'scheme' => env('MAIL_SCHEME') ?: match (strtolower((string) env('MAIL_ENCRYPTION', ''))) {
+                'ssl', 'smtps' => 'smtps',
+                'tls', 'starttls' => 'smtp',
+                default => null,
+            },
+            'username' => env('MAIL_USERNAME'),
+            'password' => env('MAIL_PASSWORD'),
+            'require_tls' => true,
+            'timeout' => 30,
+        ],
         'smtp' => [
             'transport' => 'smtp',
             'host' => env('MAIL_HOST', 'smtp.mailgun.org'),

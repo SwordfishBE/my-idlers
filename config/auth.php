@@ -2,6 +2,9 @@
 
 return [
 
+    // Zero allows unlimited registrations; the secure default is one user.
+    'max_users' => (int) env('MAX_USERS', 1),
+
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults
