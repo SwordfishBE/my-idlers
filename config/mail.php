@@ -35,7 +35,10 @@ return [
 
     'mailers' => [
         // Reminders use authenticated TLS; never silently fall back to plaintext.
-        'expiry_reminders' => [
+        'expiry_reminders' => env('REMINDER_MAIL_TRANSPORT', 'smtp') === 'local_postfix' ? [
+            'transport' => 'sendmail',
+            'path' => '/usr/sbin/sendmail -bs',
+        ] : [
             'transport' => 'smtp',
             'host' => env('MAIL_HOST'),
             'port' => env('MAIL_PORT', 587),

@@ -62,6 +62,24 @@ class ConfigurationUpgradeTest extends TestCase
         $this->assertStringNotContainsString($key, Artisan::output());
     }
 
+    public function test_local_postfix_is_explicit_and_default_smtp_requires_tls(): void
+    {
+        $code = <<<'PHP'
+require 'vendor/autoload.php';
+$app = require 'bootstrap/app.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+echo json_encode(config('mail.mailers.expiry_reminders'));
+PHP;
+        $local = new Process([PHP_BINARY, '-r', $code], base_path(), ['APP_ENV' => 'testing', 'REMINDER_MAIL_TRANSPORT' => 'local_postfix']);
+        $local->mustRun();
+        $this->assertSame(['transport' => 'sendmail', 'path' => '/usr/sbin/sendmail -bs'], json_decode($local->getOutput(), true));
+        $default = new Process([PHP_BINARY, '-r', $code], base_path(), ['APP_ENV' => 'testing', 'REMINDER_MAIL_TRANSPORT' => false]);
+        $default->mustRun();
+        $config = json_decode($default->getOutput(), true);
+        $this->assertSame('smtp', $config['transport']);
+        $this->assertTrue($config['require_tls']);
+    }
+
     public function test_legacy_mail_encryption_maps_to_the_new_tls_scheme(): void
     {
         $code = <<<'PHP'

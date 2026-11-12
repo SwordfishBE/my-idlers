@@ -81,9 +81,9 @@ class CheckConfiguration extends Command
         }
         try {
             $mailer->validateConfiguration();
-            $this->info('Reminder SMTP host and sender: configured (delivery not tested)');
+            $this->info('Reminder mail transport and sender: configured (delivery not tested)');
         } catch (Throwable $e) {
-            $this->warn('Reminder SMTP settings are incomplete. Configure the existing .env before sending mail.');
+            $this->warn('Reminder mail settings are incomplete. Configure the existing .env before sending mail.');
         }
         if ($this->laravel->configurationIsCached()) {
             $this->warn('Configuration is cached. Changes to .env require refreshing the config cache.');

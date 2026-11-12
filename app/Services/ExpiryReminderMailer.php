@@ -12,9 +12,18 @@ class ExpiryReminderMailer
     {
         $host = config('mail.mailers.expiry_reminders.host');
         $sender = config('mail.from.address');
-        if (! is_string($host) || trim($host) === '' || ! is_string($sender)
+        if (! is_string($sender)
             || ! filter_var($sender, FILTER_VALIDATE_EMAIL) || strtolower($sender) === 'hello@example.com') {
-            throw new RuntimeException('Configure MAIL_HOST and a real MAIL_FROM_ADDRESS before sending reminders.');
+            throw new RuntimeException('Configure a real MAIL_FROM_ADDRESS before sending reminders.');
+        }
+        if (config('mail.mailers.expiry_reminders.transport') === 'sendmail') {
+            if (! is_executable('/usr/sbin/sendmail')) {
+                throw new RuntimeException('The local Postfix sendmail binary is not executable.');
+            }
+            return;
+        }
+        if (! is_string($host) || trim($host) === '') {
+            throw new RuntimeException('Configure MAIL_HOST before sending reminders.');
         }
         $scheme = config('mail.mailers.expiry_reminders.scheme');
         if ($scheme !== null && ! in_array($scheme, ['smtp', 'smtps'], true)) {
