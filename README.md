@@ -27,6 +27,7 @@ Proudly sponsored by [PikaPods](https://www.pikapods.com/) - Deploy your own My 
 
 * Added optional expiry email reminders for active servers, domains, shared and reseller hosting, seedboxes and miscellaneous services, 14, 3 and 1 day before their due date.
 * Added a recipient, time-zone and test-email control in Settings. Reminders are disabled by default.
+* Added Bearer-authenticated YABS uploads, while retaining the legacy URL-token route for existing clients until explicitly disabled.
 * Added a backup-first upgrade command and reviewed migration checks. See [Updating](#updating).
 * Updated application and frontend dependencies.
 
@@ -254,15 +255,15 @@ Run with a single click on [PikaPods.com](https://www.pikapods.com/)
 
 ## Adding a YABS benchmark
 
-yabs.sh now has JSON formatted response and can POST the output directly from calling the script.
+For new uploads, generate a JSON file using the official YABS script's `-w` option, then POST it to `https://yourdomain.com/api/yabs/SERVERID` with `Authorization: Bearer <token>`. The server detail page shows a copyable example that reads the token privately and passes it to curl over standard input; it does not include the token in the URL, command-line arguments, or shell history. Obtain and inspect `yabs.sh` from its official source before running it. Keep the resulting benchmark data and token private.
 
-With My idlers you can use your API key and the server id to directly POST the benchmark result
+Existing `POST /api/yabs/{server}/{token}` clients continue to work by default when `YABS_ALLOW_LEGACY_URL_TOKENS` is absent, so existing integrations are not interrupted. Successful responses from that endpoint carry a `Deprecation: true` header. **This legacy route still exposes its token in the URL:** it may be recorded by Nginx, upstream proxies, application monitoring or client-side logs. Never share such URLs. A web app cannot prevent logs created before a request reaches it; arrange access-log redaction with the server administrator and restrict existing logs while migrating every client to Bearer authentication. New installations created from `.env.example` disable the legacy route by default.
 
-`https://yourdomain.com/api/yabs/SERVERID/USERAPIKEYISHERE`
+After all existing clients have been migrated and tested, the administrator can set `YABS_ALLOW_LEGACY_URL_TOKENS=false` in the existing private `.env`, refresh Laravel's configuration cache, and confirm that old endpoints return HTTP 410 while Bearer uploads still work. Only after confirming every integration has moved should the administrator rotate any tokens that may have appeared in logs, taking care to update all clients. Do not rotate tokens automatically.
 
-Example yabs.sh call to POST the result:
+### Existing application encryption keys
 
-`curl -sL yabs.sh | bash -s -- -s "https://yourdomain.com/api/yabs/SERVERID/USERAPIKEYISHERE"`
+Run `php artisan myidlers:check-config` on the server without sharing its secrets. It identifies the known public example key without printing it. Do not overwrite the existing `.env` or rotate `APP_KEY` automatically: first back up and test restoration of the database, `.env`, uploaded files and other application state, inventory encrypted data and integrations, and plan a maintenance window. Rotating a key can invalidate sessions, signed links and other encrypted or signed state; a zero-interruption rotation cannot be promised without inspecting the installation. Laravel supports `APP_PREVIOUS_KEYS` to read data encrypted with a **private, uncompromised** old key during a planned migration. Never keep a publicly known or compromised key enabled as a previous key on a live installation: it can continue to validate forged cookies or encrypted values. Plan re-encryption and eventual removal of previous keys with the administrator, and test the exact procedure on an isolated copy first.
 
 ## Credits
 

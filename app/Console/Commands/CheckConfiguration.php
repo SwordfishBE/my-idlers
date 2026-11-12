@@ -43,6 +43,17 @@ class CheckConfiguration extends Command
         } else {
             $this->info('Application encryption configuration: present');
         }
+        foreach (config('app.previous_keys', []) as $previousKey) {
+            $previousBytes = is_string($previousKey) && str_starts_with($previousKey, 'base64:')
+                ? base64_decode(substr($previousKey, 7), true) : $previousKey;
+            if (! is_string($previousBytes) || strlen($previousBytes) !== $length) {
+                $this->error('A previous encryption key is invalid. Check the key-rotation plan without disclosing the key.');
+                $errors++;
+            } elseif (hash_equals('737774b9dc18c68346a366d866ef1424a4a0a6722f7a651de3fc2f7c8fca86d6', hash('sha256', $previousKey))) {
+                $this->error('A previous key matches a public example. Keeping it active can allow forged encrypted values or cookies.');
+                $errors++;
+            }
+        }
         if (parse_url((string) config('app.url'), PHP_URL_SCHEME) !== 'https') {
             $this->warn('APP_URL does not use HTTPS. Verify the existing public URL before enabling reminders.');
         } else {

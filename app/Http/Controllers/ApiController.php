@@ -490,21 +490,44 @@ class ApiController extends Controller
 
     public function storeYabs(Request $request, Server $server, string $key): \Illuminate\Http\JsonResponse
     {
-        $r = User::where('api_token', $key)->first();
-        if (!isset($r->id)) {
+        if (! config('yabs.allow_legacy_url_tokens', true)) {
+            return response()->json(['error' => 'Legacy YABS authentication is disabled'], 410)->header('Cache-Control', 'no-store');
+        }
+        $user = User::where('api_token', $key)->first();
+        if (! $user || ! is_string($user->api_token) || ! hash_equals($user->api_token, $key)) {
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
-        $insert = Yabs::insertFromJson($request, $server->id);
+        return $this->persistYabs($request, $server)->header('Deprecation', 'true')->header('Cache-Control', 'no-store');
+    }
 
-        if ($insert) {
-            Cache::forget('all_active_servers');//all servers cache
-            Cache::forget('non_active_servers');//all servers cache
-            Cache::forget('all_yabs');//Forget the all YABS cache
-            return response()->json(array('message' => 'Successfully added YABS'), 200);
+    public function storeYabsAuthenticated(Request $request, Server $server): \Illuminate\Http\JsonResponse
+    {
+        $user = $request->user('api');
+        $token = $request->bearerToken();
+        if (! $user || ! is_string($user->api_token) || ! is_string($token) || ! hash_equals($user->api_token, $token)) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
-        return response()->json(array('error' => 'Server error'), 500);
+        return $this->persistYabs($request, $server);
+    }
+
+    private function persistYabs(Request $request, Server $server): \Illuminate\Http\JsonResponse
+    {
+        try {
+            DB::transaction(function () use ($request, $server) {
+                if (! Yabs::insertFromJson($request, $server->id)) {
+                    throw new \RuntimeException('Invalid YABS data');
+                }
+            });
+        } catch (\Throwable $exception) {
+            return response()->json(['error' => 'Could not save YABS data'], 500);
+        }
+
+        Cache::forget('all_active_servers');
+        Cache::forget('non_active_servers');
+        Cache::forget('all_yabs');
+        return response()->json(['message' => 'Successfully added YABS'], 200);
     }
 
     public function getAllYabs()

@@ -235,10 +235,7 @@
                 <div class="detail-section-header">
                     <h6 class="detail-section-title">YABS Benchmark</h6>
                 </div>
-                <p class="mb-3">Run this command on your server to add YABS benchmark data:</p>
-                <div class="yabs-command">
-                    <code>curl -sL yabs.sh | bash -s -- -s "{{ route('api.store-yabs', [$server_data->id, \Illuminate\Support\Facades\Auth::user()->api_token]) }}"</code>
-                </div>
+                <x-yabs-upload-instructions :server-id="$server_data->id" />
             </div>
             @endif
 
@@ -264,7 +261,7 @@
         <div class="mt-3">
             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showYabsCode()">Show YABS command</button>
             <div id="yabs_code" class="d-none mt-2 yabs-command">
-                <code>curl -sL yabs.sh | bash -s -- -s "{{ route('api.store-yabs', [$server_data->id, \Illuminate\Support\Facades\Auth::user()->api_token]) }}"</code>
+                <x-yabs-upload-instructions :server-id="$server_data->id" />
             </div>
         </div>
         @endif

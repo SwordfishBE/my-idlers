@@ -38,6 +38,30 @@ class ConfigurationUpgradeTest extends TestCase
         $this->assertStringNotContainsString($key, $output);
     }
 
+    public function test_private_previous_key_can_decrypt_existing_data_after_planned_rotation(): void
+    {
+        $old = random_bytes(32);
+        $new = random_bytes(32);
+        $ciphertext = (new \Illuminate\Encryption\Encrypter($old, 'AES-256-CBC'))->encryptString('existing data');
+        config(['app.key' => 'base64:'.base64_encode($new), 'app.previous_keys' => ['base64:'.base64_encode($old)]]);
+        $this->app->forgetInstance('encrypter');
+        $encrypter = $this->app->make('encrypter');
+        $this->assertSame('existing data', $encrypter->decryptString($ciphertext));
+        $fresh = $encrypter->encryptString('new data');
+        $this->assertSame('new data', (new \Illuminate\Encryption\Encrypter($new, 'AES-256-CBC'))->decryptString($fresh));
+    }
+
+    public function test_public_key_as_previous_key_is_reported_without_disclosure(): void
+    {
+        $lines = file(base_path('.env.production'), FILE_IGNORE_NEW_LINES);
+        $line = current(array_filter($lines, fn ($line) => str_starts_with($line, 'APP_KEY=')));
+        $key = substr($line, strlen('APP_KEY='));
+        config(['app.key' => 'base64:'.base64_encode(str_repeat('x', 32)), 'app.previous_keys' => [$key]]);
+        Artisan::call('myidlers:check-config');
+        $this->assertStringContainsString('previous key matches a public example', Artisan::output());
+        $this->assertStringNotContainsString($key, Artisan::output());
+    }
+
     public function test_legacy_mail_encryption_maps_to_the_new_tls_scheme(): void
     {
         $code = <<<'PHP'

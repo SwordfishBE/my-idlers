@@ -123,6 +123,10 @@ return [
 
     'key' => env('APP_KEY'),
 
+    // Only use for a planned key rotation with a private old key. Do not keep
+    // a publicly known or compromised key active as a previous key.
+    'previous_keys' => array_values(array_filter(array_map('trim', explode(',', (string) env('APP_PREVIOUS_KEYS', ''))))),
+
     'cipher' => 'AES-256-CBC',
 
     /*

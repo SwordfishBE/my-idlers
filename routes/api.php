@@ -76,7 +76,9 @@ Route::middleware('auth:api')->get('online/{hostname}', 'App\Http\Controllers\Ap
 
 Route::middleware('auth:api')->get('dns/{domainName}/{type}', 'App\Http\Controllers\ApiController@getIpForDomain');
 
-Route::middleware('throttle:4')->post('yabs/{server}/{key}', 'App\Http\Controllers\ApiController@storeYabs')->name('api.store-yabs');
+Route::middleware(['auth:api', 'throttle:4'])->post('yabs/{server}', 'App\Http\Controllers\ApiController@storeYabsAuthenticated')->name('api.store-yabs');
+// Legacy URL-token clients remain supported until the administrator migrates them.
+Route::middleware('throttle:4')->post('yabs/{server}/{key}', 'App\Http\Controllers\ApiController@storeYabs')->name('api.store-yabs-legacy');
 Route::middleware('auth:api')->get('yabs/', 'App\Http\Controllers\ApiController@getAllYabs');
 Route::middleware('auth:api')->get('yabs/{id}', 'App\Http\Controllers\ApiController@getYabs');
 
