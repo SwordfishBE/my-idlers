@@ -267,6 +267,7 @@
             <div class="col-12">
                 <p class="text-muted small text-end mb-4">
                     Page loaded in {{ $information['execution_time'] }}s &middot;
+                    My Idlers v{{ config('app.version') }} &middot;
                     Laravel v{{ Illuminate\Foundation\Application::VERSION }} &middot;
                     PHP v{{ PHP_VERSION }} &middot;
                     Rates by <a href="https://www.exchangerate-api.com" class="text-muted">Exchange Rate API</a>

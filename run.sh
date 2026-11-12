@@ -32,9 +32,10 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Run migrations if AUTO_MIGRATE is set
+# Automatic migrations bypass the required backup and restore verification.
 if [ "${AUTO_MIGRATE}" = "true" ]; then
-    php artisan migrate --force
+    echo 'AUTO_MIGRATE is disabled. Use php artisan myidlers:upgrade with a verified backup.' >&2
+    exit 1
 fi
 
 php artisan serve --host=0.0.0.0 --port=8000 --env=production

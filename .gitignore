@@ -4,6 +4,8 @@
 ### Laravel ###
 vendor/
 node_modules/
+public/.build/
+.phpunit.cache/
 npm-debug.log
 
 # Laravel 4 specific

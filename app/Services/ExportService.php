@@ -1193,7 +1193,7 @@ class ExportService
         $exportData = [
             'export_metadata' => [
                 'export_date' => date('c'), // ISO 8601 format
-                'version' => '4.1.0',
+                'version' => config('app.version'),
                 'counts' => [
                     'servers' => count($serversData),
                     'domains' => count($domainsData),
@@ -1290,7 +1290,7 @@ class ExportService
         // Add metadata file
         $metadata = [
             'export_date' => date('c'),
-            'version' => '4.1.0',
+            'version' => config('app.version'),
             'counts' => [
                 'servers' => count($serversData),
                 'domains' => count($domainsData),

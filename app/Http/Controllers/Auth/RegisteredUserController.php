@@ -10,6 +10,8 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 
@@ -22,7 +24,7 @@ class RegisteredUserController extends Controller
      */
     public function create()
     {
-        $maxUsers = env('MAX_USERS', 1);
+        $maxUsers = (int) config('auth.max_users', 1);
         if ($maxUsers > 0 && User::count() >= $maxUsers) {
             return redirect('/login');
         }
@@ -45,12 +47,29 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'api_token' => Str::random(60)
-        ]);
+        $createUser = function () use ($request) {
+            $maxUsers = (int) config('auth.max_users', 1);
+            if ($maxUsers > 0 && User::count() >= $maxUsers) {
+                return null;
+            }
+            return User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'api_token' => Str::random(60),
+            ]);
+        };
+
+        try {
+            // The file lock serializes registrations on this installation, even
+            // when another cache driver is used for ordinary application data.
+            $user = Cache::store('file')->lock('myidlers-registration', 120)->block(5, $createUser);
+        } catch (LockTimeoutException $exception) {
+            return redirect()->route('login')->with('error', 'Registration is temporarily unavailable. Please try again.');
+        }
+        if (! $user) {
+            return redirect()->route('login')->with('error', 'Registration is currently closed.');
+        }
 
         event(new Registered($user));
 

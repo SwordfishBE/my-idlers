@@ -272,12 +272,11 @@
                 'Accept': 'application/json',
             };
 
-            let app = new Vue({
-                el: "#app",
-                data: {
+            mountMyIdlers({
+                data() { return {
                     ipv4_in: '',
                     ipv6_in: ''
-                },
+                }; },
                 methods: {
                     fetchDnsRecords(event) {
                         var hostname = document.getElementById('hostname').value;
@@ -297,7 +296,7 @@
                         }
                     }
                 }
-            });
+            }, '#app');
         });
     </script>
     @endsection

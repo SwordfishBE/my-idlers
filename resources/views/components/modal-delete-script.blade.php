@@ -1,14 +1,13 @@
 <script>
     window.addEventListener('load', function() {
         document.getElementById("confirmDeleteModal").classList.remove("d-none");
-        let app = new Vue({
-            el: "#app",
-            data: {
+        mountMyIdlers({
+            data() { return {
                 "modal_hostname": '',
                 "modal_id": '',
                 "delete_form_action": '',
                 showModal: false
-            },
+            }; },
             methods: {
                 confirmDeleteModal(event) {
                     var el = event.target.closest('button') || event.target;
@@ -18,6 +17,6 @@
                     this.delete_form_action = '/{{$uri}}/' + this.modal_id;
                 }
             }
-        });
+        }, '#app');
     })
 </script>

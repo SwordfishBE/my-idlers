@@ -51,15 +51,14 @@
 
     <script type="application/javascript">
         window.addEventListener('load', function() {
-            let app = new Vue({
-                el: "#app",
-                data: {
+            mountMyIdlers({
+                data() { return {
                     "base_url": "{{ url('servers-compare') }}/",
                     "full_url": "{{ route('servers.compare', ['server1' => $all_servers[0]->id, 'server2' => $all_servers[1]->id]) }}",
                     "url_input": "",
                     "server1": "{{ $all_servers[0]->id ?? '' }}",
                     "server2": "{{ $all_servers[1]->id ?? '' }}",
-                },
+                }; },
                 methods: {
                     changeServer1: function changeServer1(event) {
                         this.server1 = event.target.value;
@@ -72,7 +71,7 @@
                         this.url_input = this.full_url;
                     }
                 }
-            });
+            }, '#app');
         });
     </script>
 </x-app-layout>
