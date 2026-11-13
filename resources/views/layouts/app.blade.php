@@ -37,7 +37,7 @@
     </div>
 @endif
 
-<div class="container">
+<div class="container @yield('content-class')">
     {{ $slot }}
 </div>
 <script src="{{ asset('js/app.js') }}" defer></script>

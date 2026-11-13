@@ -1,4 +1,5 @@
 @section('title', 'Servers')
+@section('content-class', 'servers-layout')
 <x-app-layout>
     <div class="container" id="app">
         <div class="page-header">
@@ -32,7 +33,7 @@
 
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="active-servers" role="tabpanel">
-                    <div class="table-responsive">
+                    <div class="servers-table-region">
                         <table class="table data-table" id="servers-table">
                             <thead>
                                 <tr>
@@ -111,7 +112,7 @@
                 </div>
 
                 <div class="tab-pane fade" id="inactive-servers" role="tabpanel">
-                    <div class="table-responsive">
+                    <div class="servers-table-region">
                         <table class="table data-table" id="inactive-servers-table">
                             <thead>
                                 <tr>
@@ -248,7 +249,7 @@
 
         });
     </script>
-    <x-datatable-init selector="#servers-table" :non-orderable="[2, 11]" search-placeholder="Search servers..." empty-table="No servers found" :order="[]" />
-    <x-datatable-init selector="#inactive-servers-table" :non-orderable="[2, 10]" search-placeholder="Search servers..." empty-table="No inactive servers found" :order="[]" />
+    <x-datatable-init selector="#servers-table" :non-orderable="[2, 11]" search-placeholder="Search servers..." empty-table="No servers found" :order="[]" :scroll-table="true" />
+    <x-datatable-init selector="#inactive-servers-table" :non-orderable="[2, 10]" search-placeholder="Search servers..." empty-table="No inactive servers found" :order="[]" :scroll-table="true" />
     @endsection
 </x-app-layout>

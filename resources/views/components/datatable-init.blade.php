@@ -6,6 +6,7 @@
     'pageLength' => 15,
     'lengthMenu' => [5, 10, 15, 25, 50, 100],
     'order' => null,
+    'scrollTable' => false,
 ])
 
 <script>
@@ -42,6 +43,16 @@
 
         if (document.querySelector(selector)) {
             new DataTable(selector, options);
+            @if($scrollTable)
+            const table = document.querySelector(selector);
+            const scrollRegion = document.createElement('div');
+            scrollRegion.className = 'table-responsive';
+            scrollRegion.tabIndex = 0;
+            scrollRegion.setAttribute('role', 'region');
+            scrollRegion.setAttribute('aria-label', 'Scrollable server table');
+            table.parentNode.insertBefore(scrollRegion, table);
+            scrollRegion.appendChild(table);
+            @endif
         }
     });
 </script>

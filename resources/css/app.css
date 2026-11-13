@@ -1,2 +1,5 @@
 @import "datatables.net-bs5";
 @import "style.css";
+/* Give the server inventory room on large displays without affecting other pages. */
+body .servers-layout { max-width: 1600px; }
+body .servers-layout > .container { max-width: none; }
