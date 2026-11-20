@@ -124,15 +124,20 @@ class IpsTest extends TestCase
         $response->assertSessionHasErrors('address');
     }
 
-    public function test_ip_type_is_required()
+    public function test_adding_ipv6_from_server_page_refreshes_cached_details()
     {
-        $response = $this->actingAs($this->user)->post(route('IPs.store'), [
-            'address' => '192.168.1.100',
-            'ip_type' => '',
-            'service_id' => $this->server->id
-        ]);
-
-        $response->assertSessionHasErrors('ip_type');
+        \Illuminate\Support\Facades\Http::fake(['ipwhois.app/*' => \Illuminate\Support\Facades\Http::response([], 503)]);
+        $details = route('servers.show', $this->server);
+        $this->actingAs($this->user)->get($details)->assertOk()->assertDontSee('2001:db8::42');
+        $this->get(route('IPs.create', ['server' => $this->server->id]))
+            ->assertOk()->assertSee('value="'.$this->server->id.'" selected', false);
+        $this->post(route('IPs.store'), [
+            'address' => '2001:db8::42',
+            'service_id' => $this->server->id,
+            'return_to_server' => '1',
+        ])->assertRedirect($details);
+        $this->assertDatabaseHas('ips', ['address' => '2001:db8::42', 'is_ipv4' => 0, 'service_id' => $this->server->id]);
+        $this->get($details)->assertOk()->assertSee('2001:db8::42');
     }
 
     public function test_service_id_is_required()

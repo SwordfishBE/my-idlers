@@ -22,6 +22,7 @@
                 </div>
             </div>
             <div class="page-actions">
+                <a href="{{ route('IPs.create', ['server' => $server_data->id]) }}" class="btn btn-outline-secondary">Add IP address</a>
                 <a href="{{ route('servers.index') }}" class="btn btn-outline-secondary">Back to servers</a>
                 <a href="{{ route('servers.edit', $server_data->id) }}" class="btn btn-primary">Edit</a>
             </div>

@@ -8,8 +8,8 @@ use App\Models\SeedBoxes;
 use App\Models\Server;
 use App\Models\Shared;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
+use Throwable;
 
 class IPsController extends Controller
 {
@@ -32,34 +32,45 @@ class IPsController extends Controller
     {
         $request->validate([
             'address' => 'required|ip|min:2',
-            'ip_type' => 'required|string|size:4',
             'service_id' => 'required|string'
         ]);
 
-        $ip_id = Str::random(8);
+        $ip = IPs::insertIP($request->service_id, $request->address);
+        $server = Server::find($ip->service_id);
+        $this->forgetAddressCaches($ip->service_id, $server !== null);
+        try {
+            IPs::getUpdateIpInfo($ip);
+        } catch (Throwable $e) {
+            report($e);
+        }
 
-        $ip = IPs::create([
-            'id' => $ip_id,
-            'address' => $request->address,
-            'is_ipv4' => ($request->ip_type === 'ipv4') ? 1 : 0,
-            'service_id' => $request->service_id,
-            'active' => 1
-        ]);
+        $destination = $server && $request->boolean('return_to_server')
+            ? redirect()->route('servers.show', $server)
+            : redirect()->route('IPs.index');
 
-        $fetch = IPs::getUpdateIpInfo($ip);
-
-        return redirect()->route('IPs.index')
+        return $destination
             ->with('success', 'IP address created Successfully.');
     }
 
     public function destroy(IPs $IP)
     {
         if ($IP->delete()) {
+            $this->forgetAddressCaches($IP->service_id, Server::whereKey($IP->service_id)->exists());
             return redirect()->route('IPs.index')
                 ->with('success', 'IP address was deleted Successfully.');
         }
         return redirect()->route('IPs.index')
             ->with('error', 'IP was not deleted.');
+    }
+
+    private function forgetAddressCaches(string $serviceId, bool $isServer): void
+    {
+        Cache::forget("ip_addresses.$serviceId");
+        Cache::forget('map_data');
+        if ($isServer) {
+            Server::serverSpecificCacheForget($serviceId);
+            Server::serverRelatedCacheForget();
+        }
     }
 
     public function getUpdateWhoIs(IPs $IP): \Illuminate\Http\RedirectResponse
