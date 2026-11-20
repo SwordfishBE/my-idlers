@@ -257,7 +257,7 @@ Run with a single click on [PikaPods.com](https://www.pikapods.com/)
 
 ## Adding a YABS benchmark
 
-Download and inspect the official `yabs.sh` script. On HTTPS installations with URL-token uploads enabled, the server detail page shows the quick command: `bash yabs.sh -s 'https://yourdomain.com/api/yabs/SERVERID/YOUR_API_TOKEN'`. Replace the placeholder privately. YABS runs Geekbench 6 by default. My Idlers stores and displays Geekbench 6 scores for new benchmarks, and retains historical Geekbench 5 data in existing records and exports.
+On HTTPS installations with URL-token uploads enabled, the server detail page shows a ready-to-run command that downloads the official YABS script, runs Geekbench 6 and uploads the results using your account token. Run it on the machine you want to benchmark and keep the command private. My Idlers stores and displays Geekbench 6 scores for new benchmarks, and retains historical Geekbench 5 data in existing records and exports.
 
 The server detail page also provides a Bearer-token option using the official script's `-w` flag to generate JSON. It reads the token privately and passes it to curl over standard input.
 

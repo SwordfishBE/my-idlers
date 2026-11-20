@@ -85,6 +85,7 @@ class YabsAuthenticationTest extends TestCase
     public function test_upload_stores_only_geekbench_six_scores(): void
     {
         $payload = $this->payload();
+        $payload['iperf'] = [['mode' => 'IPv4', 'loc' => 'Amsterdam', 'send' => '900 Mbits/sec', 'recv' => '800 Mbits/sec']];
         $payload['geekbench'] = [
             ['version' => 5, 'single' => 400, 'multi' => 800, 'url' => 'https://browser.geekbench.com/v5/cpu/1'],
             ['version' => 6, 'single' => 600, 'multi' => 1200, 'url' => 'https://browser.geekbench.com/v6/cpu/2'],
@@ -93,9 +94,24 @@ class YabsAuthenticationTest extends TestCase
 
         $this->postJson('/api/yabs/testsvr1/'.$this->user->api_token, $payload)->assertOk();
         $this->assertDatabaseHas('yabs', ['gb5_single' => null, 'gb6_single' => 600, 'gb6_multi' => 1200, 'gb6_id' => 2]);
+        $this->assertDatabaseHas('disk_speed', ['server_id' => 'testsvr1', 'd_4k_as_mbps' => 10]);
+        $this->assertDatabaseHas('network_speed', ['server_id' => 'testsvr1', 'send_as_mbps' => 900, 'receive_as_mbps' => 800]);
     }
 
-    public function test_server_page_no_longer_places_the_api_token_in_the_yabs_url(): void
+    public function test_server_page_offers_a_complete_command_only_when_enabled_over_https(): void
+    {
+        config(['yabs.allow_legacy_url_tokens' => true]);
+        $url = route('servers.show', $this->server, false);
+        $tokenPath = '/api/yabs/testsvr1/'.$this->user->api_token;
+        $this->actingAs($this->user)->get('https://localhost'.$url)->assertOk()
+            ->assertSee('https://raw.githubusercontent.com/masonr/yet-another-bench-script/master/yabs.sh')
+            ->assertSee('bash -s -- -6 -s')->assertSee($tokenPath);
+        $this->get('http://localhost'.$url)->assertOk()->assertDontSee($tokenPath);
+        config(['yabs.allow_legacy_url_tokens' => false]);
+        $this->get('https://localhost'.$url)->assertOk()->assertDontSee($tokenPath);
+    }
+
+    public function test_server_page_keeps_bearer_upload_available(): void
     {
         $html = $this->actingAs($this->user)->get(route('servers.show', $this->server))->assertOk()->getContent();
         $this->assertStringNotContainsString('/api/yabs/testsvr1/'.$this->user->api_token, $html);
