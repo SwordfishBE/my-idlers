@@ -148,11 +148,6 @@ class Yabs extends Model
         return DateTime::createFromFormat('Ymd-His', $date)->format('Y-m-d H:i:s');
     }
 
-    public static function gb5IdFromURL(string $url): int
-    {
-        return str_replace("https://browser.geekbench.com/v5/cpu/", "", $url);
-    }
-
     public static function gb6IdFromURL(string $url): int
     {
         return str_replace("https://browser.geekbench.com/v6/cpu/", "", $url);
@@ -187,13 +182,9 @@ class Yabs extends Model
             $swap = $data['mem']['swap'];
             $disk = $data['mem']['disk'];
 
-            $gb5_single = $gb5_multi = $gb5_id = $gb6_single = $gb6_multi = $gb6_id = null;
-            foreach ($data['geekbench'] as $gb) {
-                if ($gb['version'] === 5) {
-                    $gb5_single = $gb['single'];
-                    $gb5_multi = $gb['multi'];
-                    $gb5_id = self::gb5IdFromURL($gb['url']);
-                } elseif ($gb['version'] === 6) {
+            $gb6_single = $gb6_multi = $gb6_id = null;
+            foreach (($data['geekbench'] ?? []) as $gb) {
+                if ($gb['version'] === 6) {
                     $gb6_single = $gb['single'];
                     $gb6_multi = $gb['multi'];
                     $gb6_id = self::gb6IdFromURL($gb['url']);
@@ -240,9 +231,6 @@ class Yabs extends Model
                 'disk_gb' => ($disk / 1024 / 1024),
                 'disk_type' => $disk_type,
                 'output_date' => $date_ran,
-                'gb5_single' => $gb5_single,
-                'gb5_multi' => $gb5_multi,
-                'gb5_id' => $gb5_id,
                 'gb6_single' => $gb6_single,
                 'gb6_multi' => $gb6_multi,
                 'gb6_id' => $gb6_id

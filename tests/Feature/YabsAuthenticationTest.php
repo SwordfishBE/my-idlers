@@ -82,6 +82,19 @@ class YabsAuthenticationTest extends TestCase
         $this->assertDatabaseHas('servers', ['id' => 'testsvr1', 'has_yabs' => 0]);
     }
 
+    public function test_upload_stores_only_geekbench_six_scores(): void
+    {
+        $payload = $this->payload();
+        $payload['geekbench'] = [
+            ['version' => 5, 'single' => 400, 'multi' => 800, 'url' => 'https://browser.geekbench.com/v5/cpu/1'],
+            ['version' => 6, 'single' => 600, 'multi' => 1200, 'url' => 'https://browser.geekbench.com/v6/cpu/2'],
+            ['version' => 7, 'single' => 700, 'multi' => 1400, 'url' => 'https://browser.geekbench.com/v7/cpu/3'],
+        ];
+
+        $this->postJson('/api/yabs/testsvr1/'.$this->user->api_token, $payload)->assertOk();
+        $this->assertDatabaseHas('yabs', ['gb5_single' => null, 'gb6_single' => 600, 'gb6_multi' => 1200, 'gb6_id' => 2]);
+    }
+
     public function test_server_page_no_longer_places_the_api_token_in_the_yabs_url(): void
     {
         $html = $this->actingAs($this->user)->get(route('servers.show', $this->server))->assertOk()->getContent();

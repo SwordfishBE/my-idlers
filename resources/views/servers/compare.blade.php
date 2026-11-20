@@ -68,16 +68,24 @@
                                 <td class="text-center">{{ $server2_data[0]->yabs[0]->disk_gb }}<span class="data-type">GB</span></td>
                             </tr>
                             <tr>
-                                <td class="ps-3 fw-medium">GB5 Single</td>
-                                <td class="text-center">{{ $server1_data[0]->yabs[0]->gb5_single }}</td>
-                                {!! \App\Models\Server::tableRowCompare($server1_data[0]->yabs[0]->gb5_single, $server2_data[0]->yabs[0]->gb5_single, '') !!}
-                                <td class="text-center">{{ $server2_data[0]->yabs[0]->gb5_single }}</td>
+                                <td class="ps-3 fw-medium">GB6 Single</td>
+                                @if(isset($server1_data[0]->yabs[0]->gb6_single, $server2_data[0]->yabs[0]->gb6_single))
+                                <td class="text-center">{{ $server1_data[0]->yabs[0]->gb6_single }}</td>
+                                {!! \App\Models\Server::tableRowCompare($server1_data[0]->yabs[0]->gb6_single, $server2_data[0]->yabs[0]->gb6_single, '') !!}
+                                <td class="text-center">{{ $server2_data[0]->yabs[0]->gb6_single }}</td>
+                                @else
+                                    <td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td>
+                                @endif
                             </tr>
                             <tr>
-                                <td class="ps-3 fw-medium">GB5 Multi</td>
-                                <td class="text-center">{{ $server1_data[0]->yabs[0]->gb5_multi }}</td>
-                                {!! \App\Models\Server::tableRowCompare($server1_data[0]->yabs[0]->gb5_multi, $server2_data[0]->yabs[0]->gb5_multi, '') !!}
-                                <td class="text-center">{{ $server2_data[0]->yabs[0]->gb5_multi }}</td>
+                                <td class="ps-3 fw-medium">GB6 Multi</td>
+                                @if(isset($server1_data[0]->yabs[0]->gb6_multi, $server2_data[0]->yabs[0]->gb6_multi))
+                                <td class="text-center">{{ $server1_data[0]->yabs[0]->gb6_multi }}</td>
+                                {!! \App\Models\Server::tableRowCompare($server1_data[0]->yabs[0]->gb6_multi, $server2_data[0]->yabs[0]->gb6_multi, '') !!}
+                                <td class="text-center">{{ $server2_data[0]->yabs[0]->gb6_multi }}</td>
+                                @else
+                                    <td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td>
+                                @endif
                             </tr>
                             <tr>
                                 <td class="ps-3 fw-medium">4K Disk Speed</td>
@@ -150,16 +158,24 @@
                                 <td class="text-center">{{ number_format($server2_data[0]->yabs[0]->ram_mb / $server2_data[0]->price->usd_per_month, 2) }}</td>
                             </tr>
                             <tr>
-                                <td class="ps-3 fw-medium">GB5 Single per USD</td>
-                                <td class="text-center">{{ number_format($server1_data[0]->yabs[0]->gb5_single / $server1_data[0]->price->usd_per_month, 2) }}</td>
-                                {!! \App\Models\Server::tableRowCompare($server1_data[0]->yabs[0]->gb5_single / $server1_data[0]->price->usd_per_month, $server2_data[0]->yabs[0]->gb5_single / $server2_data[0]->price->usd_per_month, '') !!}
-                                <td class="text-center">{{ number_format($server2_data[0]->yabs[0]->gb5_single / $server2_data[0]->price->usd_per_month, 2) }}</td>
+                                <td class="ps-3 fw-medium">GB6 Single per USD</td>
+                                @if(isset($server1_data[0]->yabs[0]->gb6_single, $server2_data[0]->yabs[0]->gb6_single) && $server1_data[0]->price->usd_per_month > 0 && $server2_data[0]->price->usd_per_month > 0)
+                                <td class="text-center">{{ number_format($server1_data[0]->yabs[0]->gb6_single / $server1_data[0]->price->usd_per_month, 2) }}</td>
+                                {!! \App\Models\Server::tableRowCompare($server1_data[0]->yabs[0]->gb6_single / $server1_data[0]->price->usd_per_month, $server2_data[0]->yabs[0]->gb6_single / $server2_data[0]->price->usd_per_month, '') !!}
+                                <td class="text-center">{{ number_format($server2_data[0]->yabs[0]->gb6_single / $server2_data[0]->price->usd_per_month, 2) }}</td>
+                                @else
+                                    <td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td>
+                                @endif
                             </tr>
                             <tr>
-                                <td class="ps-3 fw-medium">GB5 Multi per USD</td>
-                                <td class="text-center">{{ number_format($server1_data[0]->yabs[0]->gb5_multi / $server1_data[0]->price->usd_per_month, 2) }}</td>
-                                {!! \App\Models\Server::tableRowCompare($server1_data[0]->yabs[0]->gb5_multi / $server1_data[0]->price->usd_per_month, $server2_data[0]->yabs[0]->gb5_multi / $server2_data[0]->price->usd_per_month, '') !!}
-                                <td class="text-center">{{ number_format($server2_data[0]->yabs[0]->gb5_multi / $server2_data[0]->price->usd_per_month, 2) }}</td>
+                                <td class="ps-3 fw-medium">GB6 Multi per USD</td>
+                                @if(isset($server1_data[0]->yabs[0]->gb6_multi, $server2_data[0]->yabs[0]->gb6_multi) && $server1_data[0]->price->usd_per_month > 0 && $server2_data[0]->price->usd_per_month > 0)
+                                <td class="text-center">{{ number_format($server1_data[0]->yabs[0]->gb6_multi / $server1_data[0]->price->usd_per_month, 2) }}</td>
+                                {!! \App\Models\Server::tableRowCompare($server1_data[0]->yabs[0]->gb6_multi / $server1_data[0]->price->usd_per_month, $server2_data[0]->yabs[0]->gb6_multi / $server2_data[0]->price->usd_per_month, '') !!}
+                                <td class="text-center">{{ number_format($server2_data[0]->yabs[0]->gb6_multi / $server2_data[0]->price->usd_per_month, 2) }}</td>
+                                @else
+                                    <td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td>
+                                @endif
                             </tr>
                             <tr>
                                 <td class="ps-3 fw-medium">Location</td>

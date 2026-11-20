@@ -257,7 +257,9 @@ Run with a single click on [PikaPods.com](https://www.pikapods.com/)
 
 ## Adding a YABS benchmark
 
-For new uploads, generate a JSON file using the official YABS script's `-w` option, then POST it to `https://yourdomain.com/api/yabs/SERVERID` with `Authorization: Bearer <token>`. The server detail page shows a copyable example that reads the token privately and passes it to curl over standard input; it does not include the token in the URL, command-line arguments, or shell history. Obtain and inspect `yabs.sh` from its official source before running it. Keep the resulting benchmark data and token private.
+Download and inspect the official `yabs.sh` script. On HTTPS installations with URL-token uploads enabled, the server detail page shows the quick command: `bash yabs.sh -s 'https://yourdomain.com/api/yabs/SERVERID/YOUR_API_TOKEN'`. Replace the placeholder privately. YABS runs Geekbench 6 by default. My Idlers stores and displays Geekbench 6 scores for new benchmarks, and retains historical Geekbench 5 data in existing records and exports.
+
+The server detail page also provides a Bearer-token option using the official script's `-w` flag to generate JSON. It reads the token privately and passes it to curl over standard input.
 
 Existing `POST /api/yabs/{server}/{token}` clients continue to work by default when `YABS_ALLOW_LEGACY_URL_TOKENS` is absent, so existing integrations are not interrupted. Successful responses from that endpoint carry a `Deprecation: true` header. **This legacy route still exposes its token in the URL:** it may be recorded by Nginx, upstream proxies, application monitoring or client-side logs. Never share such URLs. A web app cannot prevent logs created before a request reaches it; arrange access-log redaction with the server administrator and restrict existing logs while migrating every client to Bearer authentication. New installations created from `.env.example` disable the legacy route by default.
 

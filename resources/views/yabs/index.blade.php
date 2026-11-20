@@ -20,8 +20,8 @@
                             <th class="text-center">Freq</th>
                             <th class="text-center">RAM</th>
                             <th class="text-center">Disk</th>
-                            <th class="text-center">GB5 S</th>
-                            <th class="text-center">GB5 M</th>
+                            <th class="text-center">GB6 S</th>
+                            <th class="text-center">GB6 M</th>
                             <th class="text-center">IPv6</th>
                             <th class="text-center">4k</th>
                             <th class="text-center">64k</th>
@@ -51,14 +51,14 @@
                                 {{ $yab->disk }}<small class="text-muted">{{ $yab->disk_type }}</small>
                             </td>
                             <td class="text-center">
-                                <a href="https://browser.geekbench.com/v5/cpu/{{ $yab->gb5_id }}" class="text-decoration-none" target="_blank">
-                                    {{ $yab->gb5_single }}
-                                </a>
+                                @if($yab->gb6_id && $yab->gb6_single !== null)<a href="https://browser.geekbench.com/v6/cpu/{{ $yab->gb6_id }}" class="text-decoration-none" target="_blank">
+                                    {{ $yab->gb6_single }}
+                                </a>@else{{ $yab->gb6_single ?? "—" }}@endif
                             </td>
                             <td class="text-center">
-                                <a href="https://browser.geekbench.com/v5/cpu/{{ $yab->gb5_id }}" class="text-decoration-none" target="_blank">
-                                    {{ $yab->gb5_multi }}
-                                </a>
+                                @if($yab->gb6_id && $yab->gb6_multi !== null)<a href="https://browser.geekbench.com/v6/cpu/{{ $yab->gb6_id }}" class="text-decoration-none" target="_blank">
+                                    {{ $yab->gb6_multi }}
+                                </a>@else{{ $yab->gb6_multi ?? "—" }}@endif
                             </td>
                             <td class="text-center">
                                 @if($yab->has_ipv6 === 1)

@@ -70,24 +70,24 @@
                                 <td class="text-center">{{ $yabs2_data->disk_gb }}<span class="data-type">GB</span></td>
                             </tr>
                             <tr>
-                                <td class="ps-3 fw-medium">GB5 Single</td>
-                                <td class="text-center">{{ $yabs1_data->gb5_single ?? '—' }}</td>
-                                @if($yabs1_data->gb5_single !== null && $yabs2_data->gb5_single !== null)
-                                    {!! \App\Models\Server::tableRowCompare($yabs1_data->gb5_single, $yabs2_data->gb5_single, '') !!}
+                                <td class="ps-3 fw-medium">GB6 Single</td>
+                                <td class="text-center">{{ $yabs1_data->gb6_single ?? '—' }}</td>
+                                @if($yabs1_data->gb6_single !== null && $yabs2_data->gb6_single !== null)
+                                    {!! \App\Models\Server::tableRowCompare($yabs1_data->gb6_single, $yabs2_data->gb6_single, '') !!}
                                 @else
                                     <td class="text-center equal-td">—</td>
                                 @endif
-                                <td class="text-center">{{ $yabs2_data->gb5_single ?? '—' }}</td>
+                                <td class="text-center">{{ $yabs2_data->gb6_single ?? '—' }}</td>
                             </tr>
                             <tr>
-                                <td class="ps-3 fw-medium">GB5 Multi</td>
-                                <td class="text-center">{{ $yabs1_data->gb5_multi ?? '—' }}</td>
-                                @if($yabs1_data->gb5_multi !== null && $yabs2_data->gb5_multi !== null)
-                                    {!! \App\Models\Server::tableRowCompare($yabs1_data->gb5_multi, $yabs2_data->gb5_multi, '') !!}
+                                <td class="ps-3 fw-medium">GB6 Multi</td>
+                                <td class="text-center">{{ $yabs1_data->gb6_multi ?? '—' }}</td>
+                                @if($yabs1_data->gb6_multi !== null && $yabs2_data->gb6_multi !== null)
+                                    {!! \App\Models\Server::tableRowCompare($yabs1_data->gb6_multi, $yabs2_data->gb6_multi, '') !!}
                                 @else
                                     <td class="text-center equal-td">—</td>
                                 @endif
-                                <td class="text-center">{{ $yabs2_data->gb5_multi ?? '—' }}</td>
+                                <td class="text-center">{{ $yabs2_data->gb6_multi ?? '—' }}</td>
                             </tr>
                             <tr>
                                 <td class="ps-3 fw-medium">4K Disk Speed</td>
