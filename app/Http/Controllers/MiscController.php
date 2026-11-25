@@ -103,6 +103,8 @@ class MiscController extends Controller
 
         Cache::forget("all_misc");
         Cache::forget("misc.{$misc->id}");
+        Cache::forget('all_notes');
+        Cache::forget("note.{$misc->id}");
         Home::homePageCacheForget();
 
         return redirect()->route('misc.index')
@@ -117,6 +119,8 @@ class MiscController extends Controller
 
             Cache::forget("all_misc");
             Cache::forget("misc.{$misc->id}");
+            Cache::forget('all_notes');
+            Cache::forget("note.{$misc->id}");
             Home::homePageCacheForget();
 
             return redirect()->route('misc.index')

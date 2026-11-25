@@ -21,20 +21,25 @@ class Note extends Model
     public static function note(string $service_id): Note
     {
         return Cache::remember("note.$service_id", now()->addMonth(1), function () use ($service_id) {
-            return self::where('service_id', $service_id)->with(['server', 'shared', 'reseller', 'domain', 'dns', 'ip'])->first();
+            return self::where('service_id', $service_id)->with(['server', 'shared', 'reseller', 'domain', 'dns', 'ip', 'misc'])->first();
         });
     }
 
     public static function allNotes()
     {
         return Cache::remember("all_notes", now()->addMonth(1), function () {
-            return self::with(['server', 'shared', 'reseller', 'domain', 'dns', 'ip'])->orderBy('created_at', 'desc')->get();
+            return self::with(['server', 'shared', 'reseller', 'domain', 'dns', 'ip', 'misc'])->orderBy('created_at', 'desc')->get();
         });
     }
 
     public function server(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Server::class, 'service_id', 'id');
+    }
+
+    public function misc(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Misc::class, 'service_id', 'id');
     }
 
     public function shared(): \Illuminate\Database\Eloquent\Relations\BelongsTo

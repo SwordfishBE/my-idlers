@@ -38,6 +38,8 @@
                                     {{ $n->dns->dns_type }} {{ $n->dns->hostname }}
                                 @elseif(!is_null($n->ip))
                                     {{ $n->ip->address }}
+                                @elseif(!is_null($n->misc))
+                                    {{ $n->misc->name }}
                                 @endif
                             </td>
                             <td>
@@ -54,6 +56,8 @@
                                         DNS
                                     @elseif(!is_null($n->ip))
                                         IP
+                                    @elseif(!is_null($n->misc))
+                                        MISC
                                     @endif
                                 </span>
                             </td>

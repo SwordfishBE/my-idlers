@@ -22,6 +22,9 @@
                     @elseif($note->ip !== null)
                         {{ $note->ip->address }}
                         <small class="text-muted">(IP)</small>
+                    @elseif($note->misc !== null)
+                        {{ $note->misc->name }}
+                        <small class="text-muted">(misc)</small>
                     @endif
                 </h2>
             </div>

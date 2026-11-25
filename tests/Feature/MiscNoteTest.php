@@ -36,6 +36,8 @@ class MiscNoteTest extends TestCase
         $this->get(route('notes.create'))->assertOk()->assertSee('Example Misc (Misc)');
         $this->post(route('notes.store'), ['service_id' => $misc->id, 'note' => 'Details'])->assertRedirect(route('notes.index'));
         $note = \App\Models\Note::where('service_id', $misc->id)->firstOrFail();
+        $this->get(route('notes.index'))->assertOk()->assertSee('Example Misc')->assertSee('MISC');
+        $this->get(route('notes.show', $note))->assertOk()->assertSee('Example Misc')->assertSee('(misc)');
         $this->get(route('notes.edit', $note))->assertOk()->assertSee('value="misc0002" selected', false);
         $this->get(route('misc.show', $misc))->assertOk()->assertSee('Details');
     }
