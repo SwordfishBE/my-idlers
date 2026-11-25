@@ -50,6 +50,9 @@
                                 @foreach ($domains as $domain)
                                     <option value="{{ $domain['id'] }}">{{ $domain['domain'] }}.{{ $domain['extension'] }} (Domain)</option>
                                 @endforeach
+                                @foreach ($miscServices as $miscService)
+                                    <option value="{{ $miscService->id }}" @selected(old('service_id') === $miscService->id)>{{ $miscService->name }} (Misc)</option>
+                                @endforeach
                                 @foreach ($dns as $dn)
                                     <option value="{{ $dn['id'] }}">{{ $dn['dns_type'] }} {{ $dn['hostname'] }} {{ $dn['address'] }} (DNS)</option>
                                 @endforeach

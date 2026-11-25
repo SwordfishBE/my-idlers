@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DNS;
 use App\Models\Domains;
 use App\Models\IPs;
+use App\Models\Misc;
 use App\Models\Note;
 use App\Models\Reseller;
 use App\Models\Server;
@@ -29,8 +30,9 @@ class NoteController extends Controller
         $domains = Domains::all();
         $dns = DNS::all();
         $ips = IPs::all();
+        $miscServices = Misc::all();
 
-        return view('notes.create', compact(['servers', 'shareds', 'resellers', 'domains', 'dns', 'ips']));
+        return view('notes.create', compact(['servers', 'shareds', 'resellers', 'domains', 'dns', 'ips', 'miscServices']));
     }
 
     public function store(Request $request)
@@ -76,8 +78,9 @@ class NoteController extends Controller
         $domains = Domains::all();
         $dns = DNS::all();
         $ips = IPs::all();
+        $miscServices = Misc::all();
 
-        return view('notes.edit', compact(['note', 'servers', 'shareds', 'resellers', 'domains', 'dns', 'ips']));
+        return view('notes.edit', compact(['note', 'servers', 'shareds', 'resellers', 'domains', 'dns', 'ips', 'miscServices']));
     }
 
     public function update(Request $request, Note $note)
