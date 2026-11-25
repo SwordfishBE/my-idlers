@@ -43,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('locations', LocationsController::class);
 
+    Route::put('misc/{misc}/note', [MiscController::class, 'updateNote'])->name('misc.note.update');
     Route::resource('misc', MiscController::class);
 
     Route::resource('os', OsController::class);
@@ -54,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('servers', ServerController::class);
 
     Route::put('settings/reminders', [SettingsController::class, 'updateReminders'])->name('settings.reminders.update');
+    Route::put('settings/navigation', [SettingsController::class, 'updateNavigation'])->name('settings.navigation.update');
     Route::post('settings/reminders/test', [SettingsController::class, 'sendReminderTest'])->middleware('throttle:3,1')->name('settings.reminders.test');
     Route::resource('settings', SettingsController::class);
 

@@ -41,4 +41,5 @@ return [
     '2026_04_09_000000_add_coordinates_to_ips_table' => '209e271815b3e56bd9984eaf01e20a4dd94b0463b1bf79b74d1fac3cc01af72a',
     '2026_04_09_010000_add_coordinates_to_locations_table' => '2b8eab94d8d2bd2d50c2b89ddd757c434e127deab23018c21576709101386ebe',
     '2026_11_12_000000_add_expiry_reminders' => 'dcd71697a2f259dc591b06ff4d8085f1938f4f24be5fffaad6964a8a8ea480c1',
+    '2026_11_25_000000_add_navigation_visibility' => '00f8e082a3249ac20da589d529b488380ac1b816068722f8743d0bdebfa529b1',
 ];

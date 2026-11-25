@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Home;
 use App\Models\Misc;
+use App\Models\Note;
 use App\Models\Pricing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -25,7 +26,22 @@ class MiscController extends Controller
     public function show(Misc $misc)
     {
         $misc_data = Misc::misc($misc->id);
-        return view('misc.show', compact(['misc_data']));
+        $note = Note::where('service_id', $misc->id)->first();
+        return view('misc.show', compact('misc_data', 'note'));
+    }
+
+    public function updateNote(Request $request, Misc $misc)
+    {
+        $data = $request->validate(['note' => 'required|string|max:65535']);
+        $note = Note::firstOrNew(['service_id' => $misc->id]);
+        if (! $note->exists) {
+            $note->id = Str::random(8);
+        }
+        $note->note = $data['note'];
+        $note->save();
+        Cache::forget('all_notes');
+        Cache::forget("note.{$misc->id}");
+        return redirect()->route('misc.show', $misc)->with('success', 'Note saved successfully.');
     }
 
     public function store(Request $request)

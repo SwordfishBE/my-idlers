@@ -11,21 +11,27 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 @if(Auth::check())
+                @php($navigation = \App\Models\Settings::getSettings())
+                @if($navigation->nav_servers ?? true)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('servers.index') ? 'active' : '' }}" href="{{ route('servers.index') }}">Servers</a>
                 </li>
+                @endif
+                @if($navigation->nav_shared ?? true)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('shared.index') ? 'active' : '' }}" href="{{ route('shared.index') }}">Shared</a>
                 </li>
+                @endif
+                @if($navigation->nav_reseller ?? true)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('reseller.index') ? 'active' : '' }}" href="{{ route('reseller.index') }}">Reseller</a>
                 </li>
+                @endif
+                @if($navigation->nav_domains ?? true)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('domains.index') ? 'active' : '' }}" href="{{ route('domains.index') }}">Domains</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('labels.index') ? 'active' : '' }}" href="{{ route('labels.index') }}">Labels</a>
-                </li>
+                @endif
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('misc.index') ? 'active' : '' }}" href="{{ route('misc.index') }}">Misc</a>
                 </li>
@@ -35,6 +41,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">More</a>
                     <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('labels.index') }}">Labels</a></li>
                         <li><a class="dropdown-item" href="{{ route('dns.index') }}">DNS</a></li>
                         <li><a class="dropdown-item" href="{{ route('IPs.index') }}">IPs</a></li>
                         <li><a class="dropdown-item" href="{{ route('locations.index') }}">Locations</a></li>

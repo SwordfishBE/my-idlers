@@ -12,6 +12,19 @@ use Throwable;
 
 class SettingsController extends Controller
 {
+    public function updateNavigation(Request $request)
+    {
+        $data = $request->validate([
+            'nav_servers' => 'required|boolean',
+            'nav_shared' => 'required|boolean',
+            'nav_reseller' => 'required|boolean',
+            'nav_domains' => 'required|boolean',
+        ]);
+        Settings::where('id', 1)->firstOrFail()->forceFill($data)->save();
+        Cache::forget('settings');
+        return redirect()->route('settings.index')->with('success', 'Navigation settings updated successfully.');
+    }
+
     public function index()
     {
         return view('settings.index', ['setting' => Settings::where('id', 1)->first()]);

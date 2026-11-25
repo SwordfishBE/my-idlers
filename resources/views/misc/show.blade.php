@@ -51,6 +51,16 @@
                 </div>
             </div>
 
+            <div class="detail-section">
+                <div class="detail-section-header"><h6 class="detail-section-title">Note</h6></div>
+                <form action="{{ route('misc.note.update', $misc_data->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <label for="misc-note" class="form-label">Additional information</label>
+                    <textarea class="form-control" id="misc-note" name="note" rows="5" maxlength="65535" required>{{ old('note', $note->note ?? '') }}</textarea>
+                    <button type="submit" class="btn btn-primary mt-3">Save Note</button>
+                </form>
+            </div>
             <div class="detail-footer">
                 ID: <code>{{ $misc_data->id }}</code> &middot;
                 Created: {{ $misc_data->created_at !== null ? date_format(new DateTime($misc_data->created_at), 'jS M Y, g:i a') : '-' }} &middot;

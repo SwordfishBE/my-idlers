@@ -10,6 +10,28 @@
 
         <x-response-alerts></x-response-alerts>
 
+        <form action="{{ route('settings.navigation.update') }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="card content-card mb-4">
+                <div class="card-header card-section-header"><h5 class="card-section-title mb-0">Navigation</h5></div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        @foreach(['servers' => 'Servers', 'shared' => 'Shared', 'reseller' => 'Reseller', 'domains' => 'Domains'] as $key => $label)
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label class="form-label" for="nav_{{ $key }}">{{ $label }}</label>
+                                <select class="form-select" id="nav_{{ $key }}" name="nav_{{ $key }}">
+                                    <option value="1" @selected(old('nav_'.$key, $setting->{'nav_'.$key} ?? 1) == 1)>Show</option>
+                                    <option value="0" @selected(old('nav_'.$key, $setting->{'nav_'.$key} ?? 1) == 0)>Hide</option>
+                                </select>
+                            </div>
+                        @endforeach
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Save Navigation</button>
+                </div>
+            </div>
+        </form>
+
         <form action="{{ route('settings.update', 1) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
