@@ -79,15 +79,15 @@ class IpsTest extends TestCase
     {
         // Mock the HTTP call to ipwhois.app
         \Illuminate\Support\Facades\Http::fake([
-            'ipwhois.app/*' => \Illuminate\Support\Facades\Http::response([
+            'ipwho.is/*' => \Illuminate\Support\Facades\Http::response([
+                'success' => true,
+                'ip' => '192.168.1.100',
                 'continent' => 'North America',
                 'country' => 'United States',
                 'region' => 'California',
                 'city' => 'Los Angeles',
-                'org' => 'Test Org',
-                'isp' => 'Test ISP',
-                'asn' => 'AS12345',
-                'timezone_gmt' => '-08:00'
+                'connection' => ['org' => 'Test Org', 'isp' => 'Test ISP', 'asn' => 12345],
+                'timezone' => ['utc' => '-08:00']
             ], 200)
         ]);
 
@@ -126,7 +126,7 @@ class IpsTest extends TestCase
 
     public function test_adding_ipv6_from_server_page_refreshes_cached_details()
     {
-        \Illuminate\Support\Facades\Http::fake(['ipwhois.app/*' => \Illuminate\Support\Facades\Http::response([], 503)]);
+        \Illuminate\Support\Facades\Http::fake(['ipwho.is/*' => \Illuminate\Support\Facades\Http::response([], 503)]);
         $details = route('servers.show', $this->server);
         $this->actingAs($this->user)->get($details)->assertOk()->assertDontSee('2001:db8::42');
         $this->get(route('IPs.create', ['server' => $this->server->id]))
@@ -138,6 +138,18 @@ class IpsTest extends TestCase
         ])->assertRedirect($details);
         $this->assertDatabaseHas('ips', ['address' => '2001:db8::42', 'is_ipv4' => 0, 'service_id' => $this->server->id]);
         $this->get($details)->assertOk()->assertSee('2001:db8::42');
+    }
+
+    public function test_lookup_saves_ipv6_and_preserves_information_on_rate_limit(): void
+    {
+        $ip = IPs::create(['id' => 'testip02', 'service_id' => $this->server->id, 'address' => '2001:4860:4860::8888', 'is_ipv4' => 0, 'active' => 1]);
+        \Illuminate\Support\Facades\Http::fake(['ipwho.is/*' => \Illuminate\Support\Facades\Http::sequence()
+            ->push(['success' => true, 'ip' => '2001:4860:4860::8888', 'country' => 'United States', 'connection' => ['asn' => 15169, 'isp' => 'Google'], 'timezone' => ['utc' => '-08:00'], 'latitude' => 37.3, 'longitude' => -121.8])
+            ->push(['success' => false, 'message' => 'Rate limit exceeded'], 429)]);
+        $this->assertTrue(IPs::getUpdateIpInfo($ip));
+        $this->assertDatabaseHas('ips', ['id' => $ip->id, 'country' => 'United States', 'asn' => 'AS15169', 'isp' => 'Google']);
+        $this->assertFalse(IPs::getUpdateIpInfo($ip));
+        $this->assertDatabaseHas('ips', ['id' => $ip->id, 'country' => 'United States', 'asn' => 'AS15169']);
     }
 
     public function test_service_id_is_required()

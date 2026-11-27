@@ -48,7 +48,7 @@ class BackfillIpCoordinates extends Command
 
             $bar->advance();
 
-            // Rate limit: 1 request per second to respect ipwhois.app limits
+            // Space requests to avoid overwhelming the lookup service.
             if (!$ips->last()->is($ip)) {
                 sleep(1);
             }

@@ -60,31 +60,37 @@ class IPs extends Model
 
     public static function getUpdateIpInfo(IPs $IP): bool
     {
-        $response = Http::get("https://ipwhois.app/json/{$IP->address}");
-
-        if ($response->ok()) {
-
-            $data = $response->json();
-
-            $IP->update([
-                'continent' => $data['continent'],
-                'country' => $data['country'],
-                'region' => $data['region'],
-                'city' => $data['city'],
-                'org' => $data['org'],
-                'isp' => $data['isp'],
-                'asn' => $data['asn'],
-                'timezone_gmt' => $data['timezone_gmt'],
-                'latitude' => $data['latitude'] ?? null,
-                'longitude' => $data['longitude'] ?? null,
-                'fetched_at' => now()
-            ]);
-
-            Cache::forget('map_data');
-
+        if (! filter_var($IP->address, FILTER_VALIDATE_IP)) {
+            return false;
         }
-
-        return $response->ok();
+        try {
+            $response = Http::timeout(10)->get('https://ipwho.is/'.rawurlencode($IP->address));
+        } catch (\Illuminate\Http\Client\ConnectionException $exception) {
+            return false;
+        }
+        $data = $response->json();
+        if (! $response->ok() || ! is_array($data) || ($data['success'] ?? false) !== true
+            || ! is_string($data['ip'] ?? null) || @inet_pton($data['ip']) !== inet_pton($IP->address)) {
+            return false;
+        }
+        $values = [
+            'continent' => $data['continent'] ?? null,
+            'country' => $data['country'] ?? null,
+            'region' => $data['region'] ?? null,
+            'city' => $data['city'] ?? null,
+            'org' => data_get($data, 'connection.org'),
+            'isp' => data_get($data, 'connection.isp'),
+            'asn' => isset($data['connection']['asn']) ? 'AS'.$data['connection']['asn'] : null,
+            'timezone_gmt' => data_get($data, 'timezone.utc'),
+            'latitude' => $data['latitude'] ?? null,
+            'longitude' => $data['longitude'] ?? null,
+        ];
+        $IP->update(array_filter($values, fn ($value) => $value !== null) + ['fetched_at' => now()]);
+        Cache::forget('map_data');
+        Cache::forget("ip_addresses.$IP->service_id");
+        Server::serverSpecificCacheForget($IP->service_id);
+        Server::serverRelatedCacheForget();
+        return true;
     }
 
 }

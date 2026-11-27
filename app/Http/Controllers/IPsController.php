@@ -82,7 +82,7 @@ class IPsController extends Controller
                 ->with('success', 'IP address updated Successfully.');
         }
         return redirect()->route('IPs.index')
-            ->with('error', 'IP was not updated.');
+            ->with('error', 'IP information could not be retrieved. The lookup service may be unavailable or rate-limited.');
     }
 
 }
